@@ -1,0 +1,17 @@
+.Wrapper {
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    margin-top: -5px;
+    margin-bottom: 30px;
+    border-top: 2px solid rgba(102, 102, 102, 0.85);
+}
+
+.WrapperFooter {
+    width: 25%;
+    text-align: center;
+}
+
+.WrapperIcon {
+    height: 200px;
+}

@@ -1,0 +1,23 @@
+.wrapperInput {
+    border: none;
+    width: 92%;
+    height: 38px;
+}
+
+.wrapperButton {
+    border: none !important;
+    background-color: #0b5057 !important;
+    position: absolute;
+    right: 55px;
+    height: 38px;
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+    color: #fff !important;
+
+    &:hover {
+        background-color: #0b5057 !important; /* Xóa màu nền khi hover */
+        color: #fff !important; /* Xóa màu chữ khi hover */
+        border-color: #0b5057 !important; /* Xóa màu viền khi hover */
+        box-shadow: none !important; /* Xóa hiệu ứng shadow khi hover */
+    }
+}

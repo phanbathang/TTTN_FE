@@ -1,0 +1,14 @@
+.WrapperNavBar {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 6px;
+    height: fit-content;
+}
+
+.WrapperProducts {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}

@@ -1,0 +1,38 @@
+.WrapperLabelText {
+    color: rgb(56, 56, 61);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.WrapperTextValue {
+    color: rgb(56, 56, 61);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.WrapperContent {
+    display: flex;
+
+    flex-direction: column;
+    gap: 12px;
+}
+
+.WrapperCheckBox {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.WrapperStar {
+    display: flex;
+    gap: 4px;
+}
+
+.WrapperPrice {
+    border-radius: 10px;
+    background-color: #ccc;
+    width: fit-content;
+    padding: 4px;
+    color: rgb(56, 56, 61);
+}

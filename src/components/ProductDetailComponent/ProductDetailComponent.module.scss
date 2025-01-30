@@ -1,0 +1,99 @@
+.WrapperImage {
+    width: 64px !important;
+    height: 64px !important;
+}
+
+.WrapperRow {
+    margin-left: 2px;
+    margin-right: -19px;
+    padding-top: 20px;
+}
+
+.WrapperNameProduct {
+    font-size: 24px;
+    font-weight: 600;
+    color: rgb(36, 36, 36);
+    line-height: 32px;
+    padding-bottom: 10px;
+}
+
+.WrapperTextSell {
+    font-size: 15px;
+    color: rgb(120, 120, 120);
+    padding-bottom: 20px;
+    line-height: 24px;
+}
+
+.WrapperPriceProduct {
+    // background-color: rgb(250, 250, 250);
+    border-radius: 4px;
+}
+
+.WrapperPriceProduct h1 {
+    color: rgb(255, 66, 78);
+    font-size: 28px;
+    line-height: 40px;
+    margin-right: 8px;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.WrapperQualityProduct {
+    margin-top: 15px;
+}
+
+.CustomInputNumber {
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(166, 166, 176);
+    padding-left: 8px;
+    margin: 0 5px;
+}
+
+.WrapperCustomNumber {
+    font-size: 1.8rem;
+    border: 1px solid rgb(166, 166, 176);
+    color: #767676;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.WrapperButtonBuy {
+    background: rgb(255, 66, 78);
+    padding: 8px;
+    margin-top: 20px;
+    color: rgb(255, 255, 255);
+    width: 250px;
+    height: 40px;
+    font-size: 16px;
+    top: 213px;
+
+    &:hover {
+        background-color: rgb(255, 66, 78) !important;
+        border-color: rgb(255, 66, 78) !important;
+        color: rgb(255, 255, 255) !important;
+        box-shadow: none !important;
+    }
+}
+
+.WrapperButtonCart {
+    padding: 8px;
+    margin-top: 20px;
+    margin-left: 10px;
+    color: rgb(10, 104, 255);
+    border: 1px solid rgb(10, 104, 255);
+    width: 250px;
+    height: 40px;
+    font-size: 16px;
+    top: 213px;
+
+    &:hover {
+        background-color: none !important;
+        border-color: rgb(10, 104, 255) !important;
+        color: rgb(10, 104, 255) !important;
+        box-shadow: none !important;
+    }
+}

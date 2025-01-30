@@ -1,0 +1,57 @@
+.WrappperHeader {
+    padding: 10px 80px;
+    background-color: #007784;
+    display: flex;
+    align-items: center; // Cần sửa đúng là align-items thay vì align-item
+}
+
+.WrappperHeaderLink {
+    // Thêm CSS cho link nếu cần
+}
+
+.WrappperHeaderImg {
+    height: 80px;
+}
+
+.WrrapperHeaderAccount {
+    display: flex;
+    align-items: center; // Cần sửa đúng là align-items thay vì align-item
+    color: #fff;
+    gap: 10px;
+}
+
+.WrappperHeaderText {
+    font-size: 12px;
+    color: #fff;
+}
+
+.searchInput {
+    width: 92%;
+    padding: 0 30px 0 30px;
+}
+
+.WrapperPopover {
+    cursor: pointer;
+    padding: 10px 0 10px 0;
+    border-bottom: 1px solid #000;
+    &:hover {
+        opacity: 0.5;
+    }
+}
+
+.WrapperAdmin {
+    cursor: pointer;
+    padding: 10px 0 10px 0;
+    border-bottom: 1px solid #000;
+    &:hover {
+        opacity: 0.5;
+    }
+}
+
+.WrapperPopoverLogout {
+    cursor: pointer;
+    padding: 10px 0 5px 0;
+    &:hover {
+        opacity: 0.5;
+    }
+}
