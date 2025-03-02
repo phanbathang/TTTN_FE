@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import styles from './AdminOrder.module.scss';
+import React, { useState } from 'react';
+import styles from './AdminBorrow.module.scss';
 import { Button, Input, Modal, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
@@ -7,19 +7,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as OrderService from '../../services/OrderService.js';
 import { useQuery } from '@tanstack/react-query';
 import { convertPrice } from '../../ultils.js';
+
 import { orderContent } from '../../content.js';
 import PieChartComponent from './PieChart.jsx';
 import { useNavigate } from 'react-router-dom';
-import { DatePicker } from 'antd';
-import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
 
-dayjs.extend(isBetween);
-
-const AdminOrder = () => {
-    // const [selectedDate, setSelectedDate] = useState(null);
-    const [selectedRange, setSelectedRange] = useState([null, null]);
-
+const AdminBorrow = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state?.user);
     const access_token = user?.access_token;
@@ -37,54 +30,57 @@ const AdminOrder = () => {
     const { isLoading: isLoadingOrder, data: orders = { data: [] } } =
         queryOrder;
 
-    const searchInput = useRef(null);
-
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-        confirm();
-    };
-
-    const handleReset = (clearFilters) => {
-        clearFilters();
-    };
-
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({
             setSelectedKeys,
             selectedKeys,
             confirm,
             clearFilters,
+            close,
         }) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
                 <Input
-                    ref={searchInput}
-                    placeholder={`Tìm kiếm ${dataIndex}`}
+                    // ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) =>
                         setSelectedKeys(e.target.value ? [e.target.value] : [])
                     }
-                    onPressEnter={() =>
-                        handleSearch(selectedKeys, confirm, dataIndex)
-                    }
-                    style={{ marginBottom: 8, display: 'block' }}
+                    // onPressEnter={() =>
+                    //     handleSearch(selectedKeys, confirm, dataIndex)
+                    // }
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
                 />
                 <Space>
                     <Button
                         type="primary"
-                        onClick={() =>
-                            handleSearch(selectedKeys, confirm, dataIndex)
-                        }
+                        // onClick={() =>
+                        //     handleSearch(selectedKeys, confirm, dataIndex)
+                        // }
                         icon={<SearchOutlined />}
                         size="small"
-                        style={{ width: 90 }}
+                        style={{
+                            width: 90,
+                        }}
                     >
                         Search
                     </Button>
                     <Button
-                        onClick={() =>
-                            clearFilters && handleReset(clearFilters)
-                        }
+                        // onClick={() =>
+                        //     clearFilters && handleReset(clearFilters)
+                        // }
                         size="small"
-                        style={{ width: 90 }}
+                        style={{
+                            width: 90,
+                        }}
                     >
                         Reset
                     </Button>
@@ -93,14 +89,23 @@ const AdminOrder = () => {
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{ color: filtered ? '#1677ff' : undefined }}
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
             />
         ),
         onFilter: (value, record) =>
             record[dataIndex]
-                ?.toString()
+                .toString()
                 .toLowerCase()
                 .includes(value.toLowerCase()),
+        filterDropdownProps: {
+            onOpenChange(open) {
+                if (open) {
+                    // setTimeout(() => searchInput.current?.select(), 100);
+                }
+            },
+        },
     });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -248,87 +253,11 @@ const AdminOrder = () => {
             };
         });
 
-    //Tổng tiền đơn hàng
-
-    const handleDateChange = (dates) => {
-        if (dates) {
-            setSelectedRange([
-                dayjs(dates[0]).format('DD/MM/YYYY'),
-                dayjs(dates[1]).format('DD/MM/YYYY'),
-            ]);
-        } else {
-            setSelectedRange([null, null]);
-        }
-    };
-
-    const totalOrderByDateRange = orders?.data?.reduce((acc, order) => {
-        const date = dayjs(order.createdAt).format('DD/MM/YYYY');
-
-        if (
-            selectedRange[0] &&
-            selectedRange[1] &&
-            dayjs(date, 'DD/MM/YYYY').isBetween(
-                dayjs(selectedRange[0], 'DD/MM/YYYY'),
-                dayjs(selectedRange[1], 'DD/MM/YYYY'),
-                null,
-                '[]',
-            )
-        ) {
-            acc += order.totalPrice;
-        }
-
-        return acc;
-    }, 0);
-
     return (
         <div>
             <h1 className={styles.WrapperHeader}>Quản lý đơn hàng</h1>
-
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}
-            >
-                <div style={{ height: '200px', width: '200px' }}>
-                    <PieChartComponent data={orders?.data} />
-                </div>
-
-                {/* Hiển thị tổng tiền theo ngày đã chọn */}
-                <div className={styles.WrapperTotal}>
-                    <h2>
-                        Tổng doanh thu {selectedRange ? `` : 'tất cả các ngày'}:
-                    </h2>
-                    <p>
-                        <strong>
-                            {selectedRange[0] && selectedRange[1]
-                                ? `Từ ${selectedRange[0]} đến ${selectedRange[1]}`
-                                : 'Tất cả các ngày'}
-                            :
-                        </strong>{' '}
-                        <span style={{ color: 'red' }}>
-                            {selectedRange[0] && selectedRange[1]
-                                ? convertPrice(totalOrderByDateRange)
-                                : convertPrice(
-                                      orders?.data?.reduce(
-                                          (acc, order) =>
-                                              acc + order.totalPrice,
-                                          0,
-                                      ),
-                                  )}
-                        </span>
-                    </p>
-                </div>
-
-                {/* Chọn ngày */}
-                <div className={styles.WrapperDate}>
-                    <h2 style={{ marginRight: '5px' }}>Chọn ngày:</h2>
-                    <DatePicker.RangePicker
-                        onChange={handleDateChange}
-                        format="DD/MM/YYYY"
-                    />
-                </div>
+            <div style={{ height: '200px', width: '200px' }}>
+                <PieChartComponent data={orders?.data} />
             </div>
             <div style={{ marginTop: '20px' }}>
                 <TableComponent
@@ -406,4 +335,4 @@ const AdminOrder = () => {
     );
 };
 
-export default AdminOrder;
+export default AdminBorrow;

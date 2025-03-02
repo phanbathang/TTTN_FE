@@ -4,6 +4,7 @@ import {
     UserOutlined,
     CaretDownOutlined,
     ShoppingCartOutlined,
+    ShoppingOutlined,
 } from '@ant-design/icons';
 import styles from './style.module.scss';
 import ButtonInputSearch from '../ButtonInputSearch/ButtonInputSearch';
@@ -17,8 +18,16 @@ import image1 from '../../assets/images/booktech-Photoroom.png';
 import { searchProduct } from '../../redux/slides/productSlide.js';
 import * as ProductService from '../../services/ProductService';
 import TypeProduct from '../TypeProduct/TypeProduct.jsx';
+import {
+    resetOrderItem,
+    setOrderItems,
+} from '../../redux/slides/orderSlide.js';
 
-const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
+const HeaderComponent = ({
+    isHiddenSearch = false,
+    isHiddenCart = false,
+    isHidden = false,
+}) => {
     const navigate = useNavigate();
     const user = useSelector((state) => state.user);
     const dispatch = useDispatch();
@@ -49,8 +58,15 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         if (response.status === 'OK') {
             setIsSubmitting(true);
             setTimeout(() => {
+                // Lưu giỏ hàng vào localStorage trước khi đăng xuất
+                localStorage.setItem(
+                    'cart_' + user?.id,
+                    JSON.stringify(order?.orderItems),
+                );
+
                 localStorage.removeItem('access_token'); // Xóa access_token
                 dispatch(resetUser());
+                dispatch(resetOrderItem());
                 toast.success('Đã đăng xuất', {
                     style: { fontSize: '1.5rem' },
                 });
@@ -66,7 +82,13 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         setUsername(user?.name);
         setUseravatar(user?.avatar);
         setIsSubmitting(false);
-    }, [user?.name, user?.avatar]);
+
+        // Kiểm tra nếu có giỏ hàng cũ trong localStorage
+        const savedCart = localStorage.getItem('cart_' + user?.id);
+        if (savedCart) {
+            dispatch(setOrderItems(JSON.parse(savedCart))); // Cập nhật giỏ hàng vào Redux
+        }
+    }, [user?.name, user?.avatar, user?.id]);
 
     const content = (
         <div>
@@ -95,16 +117,9 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
             <p
                 className={styles.WrapperPopover}
-                onClick={() =>
-                    navigate('/my-order', {
-                        state: {
-                            id: user?.id,
-                            access_token: user?.access_token,
-                        },
-                    })
-                }
+                onClick={() => navigate('/my-borrow')}
             >
-                Đơn hàng của tôi
+                Danh sách mượn sách
             </p>
 
             <p className={styles.WrapperPopoverLogout} onClick={handleLogout}>
@@ -118,7 +133,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         dispatch(searchProduct(e.target.value));
     };
 
-    // Menu cho Dropdown
     const menu = (
         <Menu style={{ backgroundColor: '#f0f0f0' }}>
             {typeProduct.map((item, index) => (
@@ -126,13 +140,34 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                     key={index}
                     style={{
                         display: 'block',
-                        padding: '10px 20px',
+                        padding: '15px ',
                         borderBottom: '1px solid #ddd',
                     }}
                 >
                     <TypeProduct name={item} />
                 </Menu.Item>
             ))}
+        </Menu>
+    );
+
+    const borrow = (
+        <Menu
+            style={{
+                backgroundColor: '#f0f0f0',
+                cursor: 'pointer',
+                width: '120px',
+                textAlign: 'center',
+                display: 'flex',
+                justifyContent: 'center',
+            }}
+            onClick={() => navigate('/borrow')}
+        >
+            <Menu.Item key="borrow" onClick={() => navigate('/borrow')}>
+                <ShoppingOutlined
+                    style={{ fontSize: '15px', marginRight: '5px' }}
+                />
+                Giỏ sách
+            </Menu.Item>
         </Menu>
     );
 
@@ -152,9 +187,8 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                             : 'unset',
                 }}
             >
-                <Col span={6} style={{ textAlign: 'center' }}>
-                    <a
-                        href="#"
+                <Col span={6} style={{ paddingLeft: '40px' }}>
+                    <div
                         className={styles.WrappperHeaderLink}
                         onClick={handleLink}
                     >
@@ -163,16 +197,63 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                             className={styles.WrappperHeaderImg}
                             alt="img"
                         />
-                    </a>
+                    </div>
                 </Col>
 
-                {/* Dropdown ở giữa
-                <Dropdown overlay={menu} trigger={['click']}>
-                    <Button style={{ margin: 'auto' }}>Chọn danh mục</Button>
-                </Dropdown> */}
+                {!isHidden && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginLeft: '-130px',
+                        }}
+                    >
+                        <Col>
+                            <div
+                                onClick={() => {
+                                    navigate('/');
+                                }}
+                                className={styles.WrapperHome}
+                            >
+                                Trang chủ
+                            </div>
+                        </Col>
+
+                        <Col>
+                            <Dropdown
+                                overlay={menu}
+                                trigger={['hover']}
+                                align={{ offset: [-45, 5] }}
+                            >
+                                <Button className={styles.WrapperCategory}>
+                                    Sản phẩm
+                                </Button>
+                            </Dropdown>
+                        </Col>
+
+                        <Col span={2}>
+                            <div
+                                onClick={() =>
+                                    navigate('/my-order', {
+                                        state: {
+                                            id: user?.id,
+                                            access_token: user?.access_token,
+                                        },
+                                    })
+                                }
+                                className={styles.WrapperMyOrder}
+                            >
+                                Đơn hàng của tôi
+                            </div>
+                        </Col>
+                    </div>
+                )}
 
                 {!isHiddenSearch && (
-                    <Col span={12} style={{ margin: 'auto' }}>
+                    <Col
+                        span={6}
+                        style={{ margin: 'auto', position: 'relative' }}
+                    >
                         <ButtonInputSearch
                             size="large"
                             placeholder="Bạn đang muốn tìm sách gì ?"
@@ -183,9 +264,9 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                     </Col>
                 )}
 
-                <Col span={6} style={{ display: 'flex' }}>
+                <Col span={6} style={{ display: 'flex', alignItems: 'center' }}>
                     <Loading isLoading={isSubmitting}>
-                        <div className={styles.WrrapperHeaderAccount}>
+                        <div className={styles.WrapperHeaderAccount}>
                             {useravatar ? (
                                 <img
                                     src={useravatar}
@@ -203,7 +284,12 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                             {user?.access_token ? (
                                 <>
                                     <Popover content={content} trigger="click">
-                                        <div style={{ cursor: 'pointer' }}>
+                                        <div
+                                            style={{
+                                                cursor: 'pointer',
+                                                width: '109px',
+                                            }}
+                                        >
                                             {username?.length
                                                 ? username
                                                 : user?.email}
@@ -235,23 +321,33 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
                             )}
                         </div>
                     </Loading>
+
                     {!isHiddenCart && (
-                        <div
-                            style={{ margin: 'auto', cursor: 'pointer' }}
-                            onClick={() => navigate('/order')}
+                        <Dropdown
+                            overlay={borrow}
+                            trigger={['hover']}
+                            align={{ offset: [-20, 5] }}
                         >
-                            <Badge
-                                count={order?.orderItems?.length}
-                                size="small"
+                            <div
+                                className={styles.WrapperCart}
+                                onClick={() => navigate('/order')}
                             >
-                                <ShoppingCartOutlined
-                                    style={{ fontSize: '30px', color: '#fff' }}
-                                />
-                            </Badge>
-                            <span className={styles.WrappperHeaderText}>
-                                Giỏ hàng
-                            </span>
-                        </div>
+                                <Badge
+                                    count={order?.orderItems?.length}
+                                    size="small"
+                                >
+                                    <ShoppingCartOutlined
+                                        style={{
+                                            fontSize: '30px',
+                                            color: '#fff',
+                                        }}
+                                    />
+                                </Badge>
+                                <span className={styles.WrappperHeaderText}>
+                                    Giỏ hàng
+                                </span>
+                            </div>
+                        </Dropdown>
                     )}
                 </Col>
             </div>

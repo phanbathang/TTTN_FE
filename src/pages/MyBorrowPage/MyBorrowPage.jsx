@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as OrderService from '../../services/OrderService.js';
 import { useSelector } from 'react-redux';
-import styles from './MyOrderPage.module.scss';
+import styles from './MyBorrowPage.module.scss';
 import { convertPrice } from '../../ultils.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutationHook } from '../../hooks/useMutationHook.js';
 import { Bounce, toast } from 'react-toastify';
 import { Modal } from 'antd'; // Thêm Modal của Ant Design
 
-const MyOrderPage = () => {
+const MyBorrowPage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái hiển thị Modal
     const [selectedOrderId, setSelectedOrderId] = useState(null); // Lưu ID đơn hàng cần hủy
 
@@ -204,4 +204,4 @@ const MyOrderPage = () => {
     );
 };
 
-export default MyOrderPage;
+export default MyBorrowPage;

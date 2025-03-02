@@ -10,14 +10,14 @@ import {
     selectedOrder,
 } from '../../redux/slides/orderSlide';
 import { convertPrice } from '../../ultils';
-import styles from './OrderPage.module.scss';
+import styles from './BorrowPage.module.scss';
 import { useMutationHook } from '../../hooks/useMutationHook';
 import * as UserService from '../../services/UserService.js';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import StepsComponent from '../../components/StepsComponent/StepsComponent.jsx';
 
-const OrderPage = () => {
+const BorrowPage = () => {
     const [listChecked, setListChecked] = useState([]);
     const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
     const order = useSelector((state) => state.order);
@@ -500,4 +500,4 @@ const OrderPage = () => {
     );
 };
 
-export default OrderPage;
+export default BorrowPage;

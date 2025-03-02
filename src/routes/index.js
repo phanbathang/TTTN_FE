@@ -1,6 +1,8 @@
 import AdminPage from '../pages/AdminPage/AdminPage';
+import BorrowPage from '../pages/BorrowPage/BorrowPage';
 import DetailOrderPage from '../pages/DetailOrderPage/DetailOrderPage';
 import HomePage from '../pages/HomePage/HomePage';
+import MyBorrowPage from '../pages/MyBorrowPage/MyBorrowPage';
 import MyOrderPage from '../pages/MyOrderPage/MyOrderPage';
 import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
 import OrderPage from '../pages/OrderPage/OrderPage';
@@ -27,6 +29,12 @@ export const routes = [
     },
 
     {
+        path: '/borrow',
+        page: BorrowPage,
+        isShowHeader: true,
+    },
+
+    {
         path: '/payment',
         page: PaymentPage,
         isShowHeader: true,
@@ -41,6 +49,12 @@ export const routes = [
     {
         path: '/my-order',
         page: MyOrderPage,
+        isShowHeader: true,
+    },
+
+    {
+        path: '/my-borrow',
+        page: MyBorrowPage,
         isShowHeader: true,
     },
 

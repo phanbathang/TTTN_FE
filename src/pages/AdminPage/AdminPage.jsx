@@ -2,6 +2,7 @@ import { Menu } from 'antd';
 import React, { useState } from 'react';
 import {
     AppstoreOutlined,
+    BookOutlined,
     SettingOutlined,
     ShoppingCartOutlined,
     UserOutlined,
@@ -11,6 +12,8 @@ import AdminUser from '../../components/AdminUser/AdminUser';
 import AdminProduct from '../../components/AdminProduct/AdminProduct';
 import styles from './AdminPage.module.scss';
 import AdminOrder from '../../components/AdminOrder/AdminOrder';
+import AdminDeletedOrder from '../../components/AdminDeletedOrder/AdminDeletedOrder';
+import AdminBorrow from '../../components/AdminBorrow/AdminBorrow';
 
 const AdminPage = () => {
     const items = [
@@ -28,6 +31,21 @@ const AdminPage = () => {
             key: '3',
             icon: <ShoppingCartOutlined />,
             label: 'Đơn hàng',
+            children: [
+                {
+                    key: '3.1',
+                    label: 'Đơn hàng đã thanh toán',
+                },
+                {
+                    key: '3.2',
+                    label: 'Đơn hàng đã hủy',
+                },
+            ],
+        },
+        {
+            key: '4',
+            icon: <BookOutlined />,
+            label: 'Danh sách mượn sách',
         },
         // {
         //     key: '3',
@@ -63,7 +81,18 @@ const AdminPage = () => {
             case '2':
                 return <AdminProduct />;
             case '3':
+                return (
+                    <>
+                        <AdminOrder />
+                        <AdminDeletedOrder />
+                    </>
+                );
+            case '3.1':
                 return <AdminOrder />;
+            case '3.2':
+                return <AdminDeletedOrder />;
+            case '4':
+                return <AdminBorrow />;
             default:
                 return <></>;
         }
@@ -77,7 +106,7 @@ const AdminPage = () => {
 
     return (
         <>
-            <HeaderComponent isHiddenSearch isHiddenCart />;
+            <HeaderComponent isHiddenSearch isHiddenCart isHidden />;
             <div
                 style={{
                     display: 'flex',

@@ -89,19 +89,22 @@ const AdminProduct = () => {
             rating: '',
             discount: '',
         });
-        setStateProductDetail({
-            name: '',
-            type: '',
-            price: '',
-            description: '',
-            image: '',
-            countInStock: '',
-            rating: '',
-        });
+        // setStateProductDetail({
+        //     name: '',
+        //     type: '',
+        //     price: '',
+        //     description: '',
+        //     image: '',
+        //     countInStock: '',
+        //     rating: '',
+        //     discount: '',
+        // });
         form.resetFields();
     };
 
     const [form] = Form.useForm();
+    const [formCreate] = Form.useForm();
+    const [formEdit] = Form.useForm();
 
     const mutation = useMutationHook((data) => {
         const {
@@ -161,6 +164,25 @@ const AdminProduct = () => {
     };
 
     useEffect(() => {
+        if (!isModalOpen) {
+            formEdit.setFieldsValue(stateProductDetail);
+        } else {
+            formCreate.setFieldsValue({
+                name: '',
+                type: '',
+                price: '',
+                description: '',
+                image: '',
+                countInStock: '',
+                rating: '',
+                discount: '',
+            });
+        }
+    }, [stateProductDetail, isModalOpen, formCreate, formEdit]);
+
+    console.log('state', stateProduct, stateProductDetail);
+
+    useEffect(() => {
         form.setFieldsValue(stateProductDetail);
     }, [stateProductDetail, form]);
 
@@ -178,8 +200,11 @@ const AdminProduct = () => {
     };
 
     const closeDrawer = () => {
+        form.resetFields(); // Reset form về trạng thái ban đầu
+        setStateProductDetail({}); // Xóa hết dữ liệu sản phẩm trước đó
+
         setIsOpenDrawer(false);
-        handleCancel(); // Reset state khi đóng drawer
+        // handleCancel(); // Reset state khi đóng drawer
     };
 
     const handleDeleteProductMany = (ids) => {
@@ -345,15 +370,30 @@ const AdminProduct = () => {
         {
             title: 'Name',
             dataIndex: 'name',
-            width: 300,
+            width: 250,
+            align: 'center',
             sorter: (a, b) => a.name.length - b.name.length,
             ...getColumnSearchProps('name'),
         },
         {
+            title: 'Image',
+            dataIndex: 'image',
+            key: 'image',
+            align: 'center',
+            render: (imageUrl) => (
+                <img
+                    src={imageUrl}
+                    alt="Product"
+                    style={{ width: 100, height: 150, objectFit: 'cover' }}
+                />
+            ),
+        },
+        {
             title: 'Price',
             dataIndex: 'price',
-            width: 170,
+            width: 150,
             sorter: (a, b) => a.price - b.price,
+            align: 'center',
             filters: [
                 {
                     text: '>= 200',
@@ -372,10 +412,17 @@ const AdminProduct = () => {
             },
         },
         {
+            title: 'Discount(%)',
+            dataIndex: 'discount',
+            align: 'center',
+        },
+        {
             title: 'Rating',
             dataIndex: 'rating',
-            width: 170,
+            width: 120,
             sorter: (a, b) => a.rating - b.rating,
+            align: 'center',
+
             filters: [
                 {
                     text: '>= 3',
@@ -396,13 +443,22 @@ const AdminProduct = () => {
         {
             title: 'Type',
             dataIndex: 'type',
+            align: 'center',
+        },
+        {
+            title: 'CountInStock',
+            dataIndex: 'countInStock',
+            align: 'center',
+            sorter: (a, b) => a.countInStock - b.countInStock,
         },
         {
             title: 'Action',
             dataIndex: 'action',
+            align: 'center',
             render: renderAction,
         },
     ];
+
     const dataTable =
         products?.data.length &&
         products?.data.map((product) => {
@@ -571,7 +627,10 @@ const AdminProduct = () => {
                 <h1 className={styles.WrapperHeader}>Quản lý sản phẩm</h1>
                 <Button
                     className={styles.WrapperAddProduct}
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                        form.resetFields();
+                        setIsModalOpen(true);
+                    }}
                 >
                     {/* <PlusOutlined style={{ fontSize: '60px' }} /> */}
                     Thêm sản phẩm
@@ -611,7 +670,7 @@ const AdminProduct = () => {
                         initialValues={{ remember: true }}
                         onFinish={onFinish}
                         autoComplete="off"
-                        form={form}
+                        form={formCreate}
                     >
                         <Form.Item
                             label="Name"
@@ -748,11 +807,12 @@ const AdminProduct = () => {
                                 },
                             ]}
                         >
-                            <Input
+                            <Input.TextArea
                                 value={stateProduct.description}
                                 onChange={handleOnchange}
                                 name="description"
                                 className={styles.WrapperInput}
+                                style={{ height: '150px' }}
                             />
                         </Form.Item>
 
@@ -794,7 +854,7 @@ const AdminProduct = () => {
                                 type="primary"
                                 htmlType="submit"
                                 style={{
-                                    left: '140%',
+                                    left: '84%',
                                     marginTop: '20px',
                                     padding: '25px 15px 25px 15px',
                                     backgroundColor: '#76b8bf',
@@ -808,7 +868,12 @@ const AdminProduct = () => {
                 <DrawerComponent
                     title="Chi tiết sản phẩm"
                     isOpen={isOpenDrawer}
-                    onClose={closeDrawer}
+                    // onClose={closeDrawer}
+                    onClose={() => {
+                        form.resetFields(); // Xóa dữ liệu khi nhấn Hủy
+                        setStateProductDetail({});
+                        setIsOpenDrawer(false);
+                    }}
                     width="50%"
                 >
                     <Form
@@ -817,13 +882,13 @@ const AdminProduct = () => {
                         wrapperCol={{ span: 16 }}
                         style={{
                             maxWidth: 600,
-                            marginTop: '30px',
+                            marginTop: '10px',
                             marginRight: '20%',
                         }}
                         initialValues={{ remember: true }}
                         onFinish={onUpdateProduct}
                         autoComplete="on"
-                        form={form}
+                        form={formEdit}
                     >
                         <Form.Item
                             label="Name"
