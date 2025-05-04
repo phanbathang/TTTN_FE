@@ -6,6 +6,25 @@
     flex-direction: column;
     gap: 20px;
     background-color: rgb(240, 240, 240);
+
+    h1 {
+        margin: auto;
+        font-size: 22px;
+        position: relative;
+        margin-bottom: 15px;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: #007784;
+            border-radius: 2px;
+        }
+    }
 }
 
 .OrderCard {
@@ -22,6 +41,7 @@
 .OrderStatus {
     font-size: 14px;
     color: #555;
+    display: flex;
 }
 
 .StatusLabel {
@@ -30,13 +50,15 @@
 }
 
 .StatusValue {
-    margin-left: 8px;
+    margin-left: 6px;
+    margin-right: 20px;
 }
 
 .OrderDetails {
     display: flex;
     gap: 16px;
     align-items: center;
+    padding: 20px;
 }
 
 .OrderImage {
@@ -85,8 +107,4 @@
 .DetailsButton:hover {
     background-color: #d6eaff;
     border-color: #9bbaff;
-}
-
-.OrderDetails {
-    padding: 0 20px 20px 20px;
 }

@@ -23,14 +23,15 @@
 }
 
 .WrapperCardStyle {
-    width: 239px;
-    height: 470px;
+    width: 275px;
+    height: 550px;
     & img {
         height: 250px;
         width: 250px;
     }
     position: relative;
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .WrapperImg {
@@ -68,7 +69,7 @@
 .WrapperDetail {
     height: 45px;
     left: 3px;
-    width: 232px;
+    width: 267px;
     margin-bottom: 3px;
     text-align: center;
     text-decoration: none;

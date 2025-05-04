@@ -1,8 +1,6 @@
 import AdminPage from '../pages/AdminPage/AdminPage';
-import BorrowPage from '../pages/BorrowPage/BorrowPage';
 import DetailOrderPage from '../pages/DetailOrderPage/DetailOrderPage';
 import HomePage from '../pages/HomePage/HomePage';
-import MyBorrowPage from '../pages/MyBorrowPage/MyBorrowPage';
 import MyOrderPage from '../pages/MyOrderPage/MyOrderPage';
 import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
 import OrderPage from '../pages/OrderPage/OrderPage';
@@ -14,6 +12,7 @@ import ProfileUser from '../pages/ProfileUser/ProfileUser';
 import SignInPage from '../pages/SignInPage/SignInPage';
 import SignUpPage from '../pages/SignUpPage/SignUpPage';
 import TypeProductPage from '../pages/TypeProductPage/TypeProductPage';
+import WishListPage from '../pages/WishListPage/WishListPage';
 
 export const routes = [
     {
@@ -23,14 +22,14 @@ export const routes = [
     },
 
     {
-        path: '/order',
-        page: OrderPage,
+        path: '/wishlist',
+        page: WishListPage,
         isShowHeader: true,
     },
 
     {
-        path: '/borrow',
-        page: BorrowPage,
+        path: '/order',
+        page: OrderPage,
         isShowHeader: true,
     },
 
@@ -49,12 +48,6 @@ export const routes = [
     {
         path: '/my-order',
         page: MyOrderPage,
-        isShowHeader: true,
-    },
-
-    {
-        path: '/my-borrow',
-        page: MyBorrowPage,
         isShowHeader: true,
     },
 

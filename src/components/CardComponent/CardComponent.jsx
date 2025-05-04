@@ -36,7 +36,7 @@ const CardComponent = (props) => {
                     alt="example"
                     src={image}
                     style={{
-                        height: '320px',
+                        height: '400px',
                         objectFit: 'cover',
                         padding: '15px 15px 0 15px',
                     }}

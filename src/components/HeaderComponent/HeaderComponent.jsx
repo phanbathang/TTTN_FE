@@ -4,7 +4,6 @@ import {
     UserOutlined,
     CaretDownOutlined,
     ShoppingCartOutlined,
-    ShoppingOutlined,
 } from '@ant-design/icons';
 import styles from './style.module.scss';
 import ButtonInputSearch from '../ButtonInputSearch/ButtonInputSearch';
@@ -13,9 +12,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from '../../services/UserService.js';
 import { resetUser } from '../../redux/slides/userSlide.js';
 import Loading from '../LoadingComponent/Loading.jsx';
-import { Bounce, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import image1 from '../../assets/images/booktech-Photoroom.png';
-import { searchProduct } from '../../redux/slides/productSlide.js';
+import {
+    resetWishlist,
+    searchProduct,
+    setWishlist,
+} from '../../redux/slides/productSlide.js';
 import * as ProductService from '../../services/ProductService';
 import TypeProduct from '../TypeProduct/TypeProduct.jsx';
 import {
@@ -35,6 +38,7 @@ const HeaderComponent = ({
     const [useravatar, setUseravatar] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const order = useSelector((state) => state.order);
+    const wishlist = useSelector((state) => state.product.wishlist) || [];
     const [search, setSearch] = useState('');
     const [typeProduct, setTypeProduct] = useState([]);
 
@@ -58,15 +62,18 @@ const HeaderComponent = ({
         if (response.status === 'OK') {
             setIsSubmitting(true);
             setTimeout(() => {
-                // Lưu giỏ hàng vào localStorage trước khi đăng xuất
                 localStorage.setItem(
                     'cart_' + user?.id,
                     JSON.stringify(order?.orderItems),
                 );
-
-                localStorage.removeItem('access_token'); // Xóa access_token
+                localStorage.setItem(
+                    'wishlist_' + user?.id,
+                    JSON.stringify(wishlist),
+                );
+                localStorage.removeItem('access_token');
                 dispatch(resetUser());
                 dispatch(resetOrderItem());
+                dispatch(resetWishlist());
                 toast.success('Đã đăng xuất', {
                     style: { fontSize: '1.5rem' },
                 });
@@ -83,18 +90,22 @@ const HeaderComponent = ({
         setUseravatar(user?.avatar);
         setIsSubmitting(false);
 
-        // Kiểm tra nếu có giỏ hàng cũ trong localStorage
         const savedCart = localStorage.getItem('cart_' + user?.id);
         if (savedCart) {
-            dispatch(setOrderItems(JSON.parse(savedCart))); // Cập nhật giỏ hàng vào Redux
+            dispatch(setOrderItems(JSON.parse(savedCart)));
+        }
+
+        const savedWishlist = localStorage.getItem('wishlist_' + user?.id);
+        if (savedWishlist) {
+            dispatch(setWishlist(JSON.parse(savedWishlist)));
         }
     }, [user?.name, user?.avatar, user?.id]);
 
     const content = (
-        <div>
+        <div className={styles.popoverContent}>
             {user?.isAdmin && (
                 <p
-                    className={styles.WrapperAdmin}
+                    className={styles.wrapperAdmin}
                     onClick={() => navigate('/')}
                 >
                     Quản lý giao diện
@@ -102,27 +113,25 @@ const HeaderComponent = ({
             )}
             {user?.isAdmin && (
                 <p
-                    className={styles.WrapperAdmin}
+                    className={styles.wrapperAdmin}
                     onClick={() => navigate('/system/admin')}
                 >
                     Quản lý hệ thống
                 </p>
             )}
             <p
-                className={styles.WrapperPopover}
+                className={styles.wrapperPopover}
                 onClick={() => navigate('/profile-user')}
             >
                 Thông tin người dùng
             </p>
-
             <p
-                className={styles.WrapperPopover}
-                onClick={() => navigate('/my-borrow')}
+                className={styles.wrapperPopover}
+                onClick={() => navigate('/wishlist')}
             >
-                Danh sách mượn sách
+                WishList
             </p>
-
-            <p className={styles.WrapperPopoverLogout} onClick={handleLogout}>
+            <p className={styles.wrapperPopoverLogout} onClick={handleLogout}>
                 Đăng xuất
             </p>
         </div>
@@ -134,40 +143,12 @@ const HeaderComponent = ({
     };
 
     const menu = (
-        <Menu style={{ backgroundColor: '#f0f0f0' }}>
+        <Menu className={styles.dropdownMenu}>
             {typeProduct.map((item, index) => (
-                <Menu.Item
-                    key={index}
-                    style={{
-                        display: 'block',
-                        padding: '15px ',
-                        borderBottom: '1px solid #ddd',
-                    }}
-                >
+                <Menu.Item key={index} className={styles.menuItem}>
                     <TypeProduct name={item} />
                 </Menu.Item>
             ))}
-        </Menu>
-    );
-
-    const borrow = (
-        <Menu
-            style={{
-                backgroundColor: '#f0f0f0',
-                cursor: 'pointer',
-                width: '120px',
-                textAlign: 'center',
-                display: 'flex',
-                justifyContent: 'center',
-            }}
-            onClick={() => navigate('/borrow')}
-        >
-            <Menu.Item key="borrow" onClick={() => navigate('/borrow')}>
-                <ShoppingOutlined
-                    style={{ fontSize: '15px', marginRight: '5px' }}
-                />
-                Giỏ sách
-            </Menu.Item>
         </Menu>
     );
 
@@ -176,44 +157,35 @@ const HeaderComponent = ({
     };
 
     return (
-        <div>
+        <div className={styles.headerContainer}>
             <div
-                className={styles.WrappperHeader}
-                gutter={16}
+                className={styles.wrappperHeader}
                 style={{
                     justifyContent:
-                        isHiddenSearch && isHiddenSearch
+                        isHiddenSearch && isHiddenCart
                             ? 'space-between'
                             : 'unset',
                 }}
             >
-                <Col span={6} style={{ paddingLeft: '40px' }}>
+                <Col span={6} className={styles.logoContainer}>
                     <div
-                        className={styles.WrappperHeaderLink}
+                        className={styles.wrappperHeaderLink}
                         onClick={handleLink}
                     >
                         <img
                             src={image1}
-                            className={styles.WrappperHeaderImg}
-                            alt="img"
+                            className={styles.wrappperHeaderImg}
+                            alt="Logo"
                         />
                     </div>
                 </Col>
 
                 {!isHidden && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            marginLeft: '-130px',
-                        }}
-                    >
+                    <div className={styles.menuContainer}>
                         <Col>
                             <div
-                                onClick={() => {
-                                    navigate('/');
-                                }}
-                                className={styles.WrapperHome}
+                                onClick={() => navigate('/')}
+                                className={styles.wrapperHome}
                             >
                                 Trang chủ
                             </div>
@@ -225,13 +197,13 @@ const HeaderComponent = ({
                                 trigger={['hover']}
                                 align={{ offset: [-45, 5] }}
                             >
-                                <Button className={styles.WrapperCategory}>
+                                <Button className={styles.wrapperCategory}>
                                     Sản phẩm
                                 </Button>
                             </Dropdown>
                         </Col>
 
-                        <Col span={2}>
+                        <Col>
                             <div
                                 onClick={() =>
                                     navigate('/my-order', {
@@ -241,7 +213,7 @@ const HeaderComponent = ({
                                         },
                                     })
                                 }
-                                className={styles.WrapperMyOrder}
+                                className={styles.wrapperMyOrder}
                             >
                                 Đơn hàng của tôi
                             </div>
@@ -250,72 +222,51 @@ const HeaderComponent = ({
                 )}
 
                 {!isHiddenSearch && (
-                    <Col
-                        span={6}
-                        style={{ margin: 'auto', position: 'relative' }}
-                    >
+                    <Col className={styles.searchContainer}>
                         <ButtonInputSearch
                             size="large"
-                            placeholder="Bạn đang muốn tìm sách gì ?"
+                            placeholder="Bạn đang muốn tìm sách gì?"
                             textButton="Tìm kiếm"
-                            style={{ height: '38px' }}
+                            className={styles.searchInput}
                             onChange={onSearch}
                         />
                     </Col>
                 )}
 
-                <Col span={6} style={{ display: 'flex', alignItems: 'center' }}>
+                <Col className={styles.accountCartContainer}>
                     <Loading isLoading={isSubmitting}>
-                        <div className={styles.WrapperHeaderAccount}>
+                        <div className={styles.wrapperHeaderAccount}>
                             {useravatar ? (
                                 <img
                                     src={useravatar}
-                                    alt="avatar"
-                                    style={{
-                                        height: '50px',
-                                        width: '50px',
-                                        borderRadius: '50%',
-                                        objectFit: 'cover',
-                                    }}
+                                    alt="Avatar"
+                                    className={styles.avatar}
                                 />
                             ) : (
-                                <UserOutlined style={{ fontSize: '30px' }} />
+                                <UserOutlined className={styles.userIcon} />
                             )}
                             {user?.access_token ? (
-                                <>
-                                    <Popover content={content} trigger="click">
-                                        <div
-                                            style={{
-                                                cursor: 'pointer',
-                                                width: '109px',
-                                            }}
-                                        >
-                                            {username?.length
-                                                ? username
-                                                : user?.email}
-                                        </div>
-                                    </Popover>
-                                </>
+                                <Popover content={content} trigger="click">
+                                    <div className={styles.accountName}>
+                                        {username?.length
+                                            ? username
+                                            : user?.email}
+                                        <CaretDownOutlined
+                                            className={styles.dropdownIcon}
+                                        />
+                                    </div>
+                                </Popover>
                             ) : (
                                 <div
-                                    style={{
-                                        margin: 'auto',
-                                        cursor: 'pointer',
-                                    }}
+                                    className={styles.loginRegister}
                                     onClick={handleLogin}
                                 >
-                                    <span className={styles.WrappperHeaderText}>
-                                        Đăng nhập/Đăng ký
-                                    </span>
+                                    <span>Đăng nhập/Đăng ký</span>
                                     <div>
-                                        <span
-                                            className={
-                                                styles.WrappperHeaderText
-                                            }
-                                        >
-                                            Tài khoản
-                                        </span>
-                                        <CaretDownOutlined />
+                                        <span>Tài khoản</span>
+                                        <CaretDownOutlined
+                                            className={styles.dropdownIcon}
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -323,31 +274,21 @@ const HeaderComponent = ({
                     </Loading>
 
                     {!isHiddenCart && (
-                        <Dropdown
-                            overlay={borrow}
-                            trigger={['hover']}
-                            align={{ offset: [-20, 5] }}
+                        <div
+                            className={styles.wrapperCart}
+                            onClick={() => navigate('/order')}
                         >
-                            <div
-                                className={styles.WrapperCart}
-                                onClick={() => navigate('/order')}
+                            <Badge
+                                count={order?.orderItems?.length}
+                                size="small"
+                                className={styles.cartBadge}
                             >
-                                <Badge
-                                    count={order?.orderItems?.length}
-                                    size="small"
-                                >
-                                    <ShoppingCartOutlined
-                                        style={{
-                                            fontSize: '30px',
-                                            color: '#fff',
-                                        }}
-                                    />
-                                </Badge>
-                                <span className={styles.WrappperHeaderText}>
-                                    Giỏ hàng
-                                </span>
-                            </div>
-                        </Dropdown>
+                                <ShoppingCartOutlined
+                                    className={styles.cartIcon}
+                                />
+                            </Badge>
+                            <span className={styles.cartText}>Giỏ hàng</span>
+                        </div>
                     )}
                 </Col>
             </div>

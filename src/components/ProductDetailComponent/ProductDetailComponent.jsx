@@ -13,7 +13,13 @@ import {
     Dropdown,
 } from 'antd';
 import styles from './ProductDetailComponent.module.scss';
-import { MinusOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+    HeartFilled,
+    HeartOutlined,
+    MinusOutlined,
+    MoreOutlined,
+    PlusOutlined,
+} from '@ant-design/icons';
 import ButtonComponents from '../ButtonComponents/ButtonComponents';
 import * as ProductService from '../../services/ProductService.js';
 import { useQuery } from '@tanstack/react-query';
@@ -22,12 +28,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { addOrderProduct, resetOrder } from '../../redux/slides/orderSlide.js';
 import { convertPrice, formatDescription } from '../../ultils.js';
 import { toast } from 'react-toastify';
+import {
+    addToWishlist,
+    removeFromWishlist,
+} from '../../redux/slides/productSlide.js';
 
 const { TextArea } = Input;
 
 const ProductDetailComponent = ({ idProduct }) => {
     const user = useSelector((state) => state.user);
     const order = useSelector((state) => state.order);
+    const wishlist = useSelector((state) => state.product.wishlist);
     const [errorOrderLimit, setErrorOrderLimit] = useState(false);
     const [numProduct, setNumProduct] = useState(1);
     const [comment, setComment] = useState('');
@@ -35,6 +46,7 @@ const ProductDetailComponent = ({ idProduct }) => {
     const [showComments, setShowComments] = useState(false);
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
+    // const [isWishlisted, setIsWishlisted] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useDispatch();
@@ -85,6 +97,7 @@ const ProductDetailComponent = ({ idProduct }) => {
                             amount: numProduct,
                             image: productDetails?.image,
                             price: productDetails?.price,
+                            type: productDetails?.type,
                             product: productDetails?._id,
                             discount: productDetails?.discount,
                             countInStock: productDetails?.countInStock,
@@ -115,6 +128,7 @@ const ProductDetailComponent = ({ idProduct }) => {
                             amount: numProduct,
                             image: productDetails?.image,
                             price: productDetails?.price,
+                            type: productDetails?.type,
                             product: productDetails?._id,
                             discount: productDetails?.discount,
                             countInStock: productDetails?.countInStock,
@@ -124,6 +138,51 @@ const ProductDetailComponent = ({ idProduct }) => {
                 navigate('/order');
             } else {
                 setErrorOrderLimit(true);
+            }
+        }
+    };
+
+    const isWishlisted = wishlist.some(
+        (item) => item.id === productDetails?._id,
+    );
+
+    const handleAddWishListProduct = () => {
+        if (!user?.id) {
+            navigate('/sign-in', { state: location.pathname });
+        } else {
+            if (isWishlisted) {
+                dispatch(removeFromWishlist(productDetails?._id));
+                toast.warning('Đã xóa khỏi danh sách yêu thích', {
+                    style: { fontSize: '15px' },
+                });
+                console.log('Removed from wishlist:', productDetails?._id);
+            } else {
+                if (wishlist.length >= 10) {
+                    toast.error(
+                        'Danh sách yêu thích đã đầy (tối đa 10 sản phẩm)',
+                        {
+                            style: { fontSize: '15px' },
+                        },
+                    );
+                    return;
+                }
+                const productToAdd = {
+                    wishlist: {
+                        id: productDetails?._id,
+                        name: productDetails?.name,
+                        amount: numProduct,
+                        image: productDetails?.image,
+                        price: productDetails?.price,
+                        type: productDetails?.type,
+                        discount: productDetails?.discount,
+                        countInStock: productDetails?.countInStock,
+                    },
+                };
+                dispatch(addToWishlist(productToAdd));
+                toast.success('Đã thêm vào danh sách yêu thích', {
+                    style: { fontSize: '15px' },
+                });
+                console.log('Added to wishlist:', productToAdd);
             }
         }
     };
@@ -296,6 +355,7 @@ const ProductDetailComponent = ({ idProduct }) => {
                         padding: '20px 30px 20px 30px',
                         backgroundColor: '#fff',
                         width: '70%',
+                        position: 'relative',
                     }}
                 >
                     <Col span={10}>
@@ -385,6 +445,17 @@ const ProductDetailComponent = ({ idProduct }) => {
                                         <PlusOutlined size="10" />
                                     </button>
                                 </div>
+                            </div>
+                            <div
+                                className={styles.WrapperWishlist}
+                                onClick={handleAddWishListProduct}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {isWishlisted ? (
+                                    <HeartFilled style={{ color: 'red' }} />
+                                ) : (
+                                    <HeartOutlined />
+                                )}
                             </div>
                             {errorOrderLimit && (
                                 <div style={{ color: 'red' }}>

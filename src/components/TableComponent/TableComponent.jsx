@@ -89,8 +89,8 @@ const TableComponent = (props) => {
                     padding: '10px 20px 10px 20px',
                     borderRadius: '6px',
                     position: 'absolute',
-                    top: '142px',
-                    left: '585px',
+                    top: '6px',
+                    left: '350px',
                     cursor: 'pointer',
                 }}
                 onClick={() => setIsModalOpenDelete(true)}
@@ -107,37 +107,6 @@ const TableComponent = (props) => {
                 dataSource={dataSource}
                 {...props}
             />
-            {/* <ModalComponent
-                title="Xóa sản phẩm"
-                open={isModalOpenDelete}
-                style={{ top: '50px' }}
-                onOk={handleDeleteAllProduct}
-                footer={[
-                    <Button
-                        key="cancel"
-                        onClick={handleCancelDelete}
-                        style={{
-                            borderColor: '#76b8bf',
-                            color: '#000',
-                        }}
-                    >
-                        Hủy
-                    </Button>,
-                    <Button
-                        key="submit"
-                        type="primary"
-                        style={{
-                            backgroundColor: '#76b8bf', // Màu nền của nút OK
-                            borderColor: '#76b8bf', // Đảm bảo viền có màu giống nền
-                        }}
-                        onClick={handleDeleteAllProduct} // Hàm xử lý khi nhấn nút OK
-                    >
-                        OK
-                    </Button>,
-                ]}
-            >
-                <div>Bạn có chắc chắn xóa tất cả sản phẩm này không?</div>
-            </ModalComponent> */}
 
             <ModalComponent
                 title="Xuất file"

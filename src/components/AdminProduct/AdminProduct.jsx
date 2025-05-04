@@ -22,6 +22,7 @@ import DrawerComponent from '../DrawerComponent/DrawerComponent.jsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from '../../redux/slides/userSlide.js';
 import ModalComponent from '../ModalComponent/ModalComponent.jsx';
+import Loading from '../LoadingComponent/Loading.jsx';
 
 const AdminProduct = () => {
     // const dispatch = useDispatch();
@@ -33,7 +34,7 @@ const AdminProduct = () => {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [typeSelect, setTypeSelect] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
     const searchInput = useRef(null);
 
     const [stateProduct, setStateProduct] = useState({
@@ -246,6 +247,7 @@ const AdminProduct = () => {
     const queryProduct = useQuery({
         queryKey: ['products'],
         queryFn: ProductService.getAllProduct,
+        staleTime: 0, // Đảm bảo dữ liệu luôn được fetch lại khi vào case này
     });
 
     const typeProduct = useQuery({
@@ -253,7 +255,11 @@ const AdminProduct = () => {
         queryFn: ProductService.getAllTypeProduct,
     });
 
-    const { isLoading: isLoadingProduct, data: products } = queryProduct;
+    const {
+        isLoading: isLoadingProduct,
+        isFetching,
+        data: products,
+    } = queryProduct;
 
     const renderAction = () => {
         return (
@@ -455,6 +461,7 @@ const AdminProduct = () => {
             title: 'Action',
             dataIndex: 'action',
             align: 'center',
+            width: '150px',
             render: renderAction,
         },
     ];
@@ -572,26 +579,91 @@ const AdminProduct = () => {
         }
     };
 
+    // const handleOnchangeAvatar = async ({ fileList }) => {
+    //     const file = fileList[0];
+    //     if (!file.url && !file.preview) {
+    //         file.preview = await getBase64(file.originFileObj);
+    //     }
+    //     setStateProduct({
+    //         ...stateProduct,
+    //         image: file.preview,
+    //     });
+    // };
+
+    // const handleOnchangeAvatarDetail = async ({ fileList }) => {
+    //     const file = fileList[0];
+    //     if (!file.url && !file.preview) {
+    //         file.preview = await getBase64(file.originFileObj);
+    //     }
+    //     setStateProductDetail({
+    //         ...stateProductDetail,
+    //         image: file.preview,
+    //     });
+    // };
+
     const handleOnchangeAvatar = async ({ fileList }) => {
         const file = fileList[0];
         if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+            try {
+                // Tạo FormData để gửi file lên server
+                const formData = new FormData();
+                formData.append('file', file.originFileObj);
+                formData.append('upload_preset', 'xvfxjxgm'); // Thay bằng upload preset của bạn
+
+                // Gọi API upload lên Cloudinary
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/dk6phxjab/image/upload`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                    },
+                );
+
+                const data = await response.json();
+                if (data.secure_url) {
+                    setStateProduct({
+                        ...stateProduct,
+                        image: data.secure_url, // Lưu URL từ Cloudinary
+                    });
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                toast.error('Upload ảnh thất bại');
+            }
         }
-        setStateProduct({
-            ...stateProduct,
-            image: file.preview,
-        });
     };
 
     const handleOnchangeAvatarDetail = async ({ fileList }) => {
+        if (isUploading) return; // Chặn nếu đang upload
+
         const file = fileList[0];
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
+        if (!file || (!file.url && !file.preview)) {
+            try {
+                setIsUploading(true);
+
+                const formData = new FormData();
+                formData.append('file', file.originFileObj);
+                formData.append('upload_preset', 'xvfxjxgm');
+
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/dk6phxjab/image/upload`,
+                    { method: 'POST', body: formData },
+                );
+
+                const data = await response.json();
+                if (data.secure_url) {
+                    setStateProductDetail((prev) => ({
+                        ...prev,
+                        image: data.secure_url,
+                    }));
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                toast.error('Upload ảnh thất bại');
+            } finally {
+                setIsUploading(false);
+            }
         }
-        setStateProductDetail({
-            ...stateProductDetail,
-            image: file.preview,
-        });
     };
 
     const onUpdateProduct = () => {
@@ -622,7 +694,7 @@ const AdminProduct = () => {
     };
 
     return (
-        <div>
+        <Loading isLoading={isLoadingProduct || isFetching} size="small">
             <div>
                 <h1 className={styles.WrapperHeader}>Quản lý sản phẩm</h1>
                 <Button
@@ -816,7 +888,7 @@ const AdminProduct = () => {
                             />
                         </Form.Item>
 
-                        <Form.Item
+                        {/* <Form.Item
                             label="Image"
                             name="image"
                             rules={[
@@ -844,6 +916,41 @@ const AdminProduct = () => {
                                             objectFit: 'cover',
                                         }}
                                         alt="avatar"
+                                    />
+                                )}
+                            </Upload>
+                        </Form.Item> */}
+
+                        <Form.Item
+                            label="Image"
+                            name="image"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Vui lòng tải lên ảnh sản phẩm!',
+                                },
+                            ]}
+                        >
+                            <Upload
+                                onChange={handleOnchangeAvatar}
+                                showUploadList={false}
+                                maxCount={1}
+                                beforeUpload={() => false} // Ngăn chặn upload tự động
+                                multiple={false}
+                            >
+                                <Button className={styles.WrapperSelect}>
+                                    Tải lên ảnh (PNG/JPG)
+                                </Button>
+                                {stateProduct?.image && (
+                                    <img
+                                        src={stateProduct?.image}
+                                        style={{
+                                            height: '55px',
+                                            width: '55px',
+                                            borderRadius: '50%',
+                                            objectFit: 'cover',
+                                        }}
+                                        alt="product"
                                     />
                                 )}
                             </Upload>
@@ -1039,9 +1146,10 @@ const AdminProduct = () => {
                                 onChange={handleOnchangeAvatarDetail}
                                 showUploadList={false}
                                 maxCount={1}
+                                multiple={false}
                             >
                                 <Button className={styles.WrapperSelect}>
-                                    Upload png only
+                                    Tải lên ảnh (PNG/JPG)
                                 </Button>
                                 {stateProductDetail?.image && (
                                     <img
@@ -1107,7 +1215,7 @@ const AdminProduct = () => {
                     <div>Bạn có chắc chắn xóa sản phẩm này không?</div>
                 </ModalComponent>
             </div>
-        </div>
+        </Loading>
     );
 };
 

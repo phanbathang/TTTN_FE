@@ -106,6 +106,10 @@ export const orderSlide = createSlice({
             });
             state.orderItemSelected = orderSelected;
         },
+        // syncCartFromLocalStorage: (state, action) => {
+        //     const { cartItems } = action.payload;
+        //     state.orderItems = cartItems || [];
+        // },
     },
 });
 
@@ -120,6 +124,7 @@ export const {
     resetOrder,
     resetOrderItem,
     setOrderItems,
+    syncCartFromLocalStorage,
 } = orderSlide.actions;
 
 export default orderSlide.reducer;
