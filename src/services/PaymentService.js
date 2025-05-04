@@ -22,14 +22,6 @@ export const refundOrder = async (captureId) => {
     return res.data;
 };
 
-// export const createZaloPayOrder = async (orderData) => {
-//     const response = await axios.post(
-//         `${process.env.REACT_APP_API_URL}/payment/zalopay/create-order`,
-//         orderData,
-//     );
-//     return response.data;
-// };
-
 export const createVNPayPayment = (data) => {
     return axios.post(`${process.env.REACT_APP_API_URL}/payment/vnpay`, data); // Thay URL bằng backend của bạn
 };
